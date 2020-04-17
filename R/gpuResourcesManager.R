@@ -119,8 +119,8 @@
       }
         memPercent = paste0("(", ceiling(usedMem/maxMem * 100), "%)")
         
-        usedMem_char = vapply(usedMem, format_memory_size_output,character(1))
-        maxMem_char = vapply(maxMem, format_memory_size_output,character(1))
+        usedMem_char = vapply(usedMem, format_memory_size,character(1))
+        maxMem_char = vapply(maxMem, format_memory_size,character(1))
         
         usedMem_char = paste0("--Used: ", usedMem_char, memPercent)
         maxMem_char = paste0("--Total: ", maxMem_char)
@@ -151,21 +151,6 @@
 
 
 
-# A tiny function that can make the output more compact Auto convert
-# the unit between byte, kb, mb, and gb The input is the memory size in
-# byte
-format_memory_size_output <- function(x) {
-    if (x > 10^9) 
-        return(paste0(ceiling((x)/1024^3 * 100)/100, " GB"))
-    if (x > 10^7) 
-        return(paste0(ceiling((x)/1024^2 * 100)/100, " MB"))
-    if (x > 10^4) 
-        return(paste0(ceiling((x)/1024 * 100)/100, " KB"))
-    
-    return(paste0(x, " Byte"))
-}
-
-
 # This function query the device info and storage the results into the
 # global variable If initialOnly=TRUE the function will only update the
 # deviceInfo in the first call
@@ -189,10 +174,11 @@ updateDeviceInfo <- function(initialOnly = FALSE) {
     }
     
     if (length(deviceInfo) == 0) {
-      stop("No device has been found, please make sure the computer has a graphic card or the driver has been properly installed.\n",
+      message("No device has been found, please make sure the computer has a graphic card or the driver has been properly installed.\n",
               "Hint:", 
               "\nFor CPU, you can install the intel's / ATI's graphic driver for the intel's / AMD's CPU respectively.", 
               "\nFor GPU, you need to download the graphic driver from your vendor's website.")
+      return()
     }
     deviceInfo$haslocalMemory = deviceInfo$haslocalMemory == 1
     deviceInfo$id = as.integer(deviceInfo$id + 1)

@@ -4,8 +4,14 @@
 \alias{.kernel}
 \title{Excute the openCL function}
 \usage{
-.kernel(src = "", kernel, parms, .device = "auto",
-  .globalThreadNum = "length(FirstArg)", .options = kernel.getOption())
+.kernel(
+  src = "",
+  kernel,
+  parms,
+  .device = "auto",
+  .globalThreadNum = "length(FirstArg)",
+  .options = kernel.getOption()
+)
 }
 \arguments{
 \item{src}{the source code, it can be either a file directory or the code}
@@ -88,9 +94,12 @@ options=kernel.getOption()
 .kernel(src = code,kernel='matAdd',parms=list(A_dev,B_dev,C_dev,m),
 .globalThreadNum = n,.options = options)
 
+#This is just a patch to fix check error
+if(!is.null(C_dev)){
 #Retrieve the data
 C_dev=download(C_dev)
 C=as.matrix(C_dev)
 #Check the error
 range(C-A-B)
+}
 }

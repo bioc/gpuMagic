@@ -1,5 +1,5 @@
 context("gpuMatrix operation")
-
+skip_if(gpuMagic:::getTotalDeviceNum()==0)
 test_that("Matrix upload and download",{
   
   type=c("bool","char","half","float","double","int","long","uint","ulong")

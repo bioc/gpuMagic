@@ -4,8 +4,15 @@
 \alias{gpuSapply}
 \title{A GPU version of the sapply function}
 \usage{
-gpuSapply(X, FUN, ..., .macroParms = NULL, .device = "auto",
-  loading = "auto", .options = gpuSapply.getOption())
+gpuSapply(
+  X,
+  FUN,
+  ...,
+  .macroParms = NULL,
+  .device = "auto",
+  loading = "auto",
+  .options = gpuSapply.getOption()
+)
 }
 \arguments{
 \item{X}{a vector that \code{FUN} will loop over.}
@@ -35,22 +42,22 @@ some addtional opencl-related arguments.
 }
 \examples{
 #matrix multiplication function
-matMul<-function(ind,A,B){
-C=A\%*\%B[,ind]
+matMul = function(ind,A,B){
+C = A\%*\%B[,ind]
 return(C)
 }
 
-n=100
-m=200
-k=100
+n = 100
+m = 200
+k = 100
 #Create the data
-A=matrix(runif(n*m),n,m)
-B=matrix(runif(k*m),m,k)
+A = matrix(runif(n*m),n,m)
+B = matrix(runif(k*m),m,k)
 #Perform matrix multiplication
 #GPU
-res_gpu=gpuSapply(1:k,matMul,A,B)
+res_gpu = gpuSapply(1:k,matMul,A,B)
 #CPU
-res_cpu=sapply(1:k,matMul,A,B)
+res_cpu = sapply(1:k,matMul,A,B)
 
 #error
 range(res_gpu-res_cpu)

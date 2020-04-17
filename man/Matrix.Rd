@@ -4,8 +4,14 @@
 \alias{Matrix}
 \title{Create a matrix}
 \usage{
-Matrix(nrow = 1, ncol = 1, precision = GPUVar$default_float,
-  constDef = FALSE, shared = FALSE, location = "global")
+Matrix(
+  nrow = 1,
+  ncol = 1,
+  precision = GPUVar$default_float,
+  constDef = FALSE,
+  shared = FALSE,
+  location = "global"
+)
 }
 \arguments{
 \item{nrow, ncol}{The matrix dimension.}

@@ -71,15 +71,22 @@
 #' .kernel(src = code,kernel='matAdd',parms=list(A_dev,B_dev,C_dev,m),
 #' .globalThreadNum = n,.options = options)
 #' 
+#' #This is just a patch to fix check error
+#' if(!is.null(C_dev)){
 #' #Retrieve the data
 #' C_dev=download(C_dev)
 #' C=as.matrix(C_dev)
 #' #Check the error
 #' range(C-A-B)
+#' }
 #' @return A vector or a matrix
 #' @export
 .kernel <- function(src = "", kernel, parms, .device = "auto", .globalThreadNum = "length(FirstArg)", 
     .options = kernel.getOption()) {
+  if(getTotalDeviceNum()==0){
+    message("No device has been found!")
+    return()
+  }
     verbose = .options$verbose
     kernelMsg = .options$kernelMsg
     kernelOption = .options$kernelOption
@@ -182,8 +189,8 @@
     }
     if (verbose || kernelMsg$memory.usage.msg) {
         message("OpenCL memory usage report:")
-        message("Global memory: ", format_memory_size_output(global_memory))
-        message("Shared memory: ", format_memory_size_output(share_memory))
+        message("Global memory: ", format_memory_size(global_memory))
+        message("Shared memory: ", format_memory_size(share_memory))
     }
     
     

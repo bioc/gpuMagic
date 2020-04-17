@@ -4,8 +4,13 @@
 \alias{compileGPUCode}
 \title{Compile the R function without excute it in the device.}
 \usage{
-compileGPUCode(X, FUN, ..., .macroParms = NULL,
-  .options = gpuSapply.getOption())
+compileGPUCode(
+  X,
+  FUN,
+  ...,
+  .macroParms = NULL,
+  .options = gpuSapply.getOption()
+)
 }
 \arguments{
 \item{X}{a vector that \code{FUN} will loop over.}
@@ -27,18 +32,18 @@ Compile the R function without excute it in the device.
 }
 \examples{
 #matrix add function
-matAdd<-function(ind,A,B){
-C=A[,ind]+B[,ind]
+matAdd = function(ind,A,B){
+C = A[,ind]+B[,ind]
 return(C)
 }
 
-n=100
-m=200
+n = 100
+m = 200
 #Create the data
-A=matrix(runif(n*m),n,m)
-B=matrix(runif(n*m),n,m)
+A = matrix(runif(n*m),n,m)
+B = matrix(runif(n*m),n,m)
 #Compile the R code
-res=compileGPUCode(1:m,matAdd,A,B)
+res = compileGPUCode(1:m,matAdd,A,B)
 #print GPU code
 cat(res$gpu_code)
 }

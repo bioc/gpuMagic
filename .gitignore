@@ -2,7 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
--DESKTOP-FKB30T8.Rhistory
+*.Rhistory
+inst/test/*
 inst/doc
 inst/record/
 inst/script/
@@ -10,5 +11,5 @@ inst/include/lib32/
 inst/include/lib64/
 src-i386/
 src-x64/
--DESKTOP-U5JA32O.Rhistory
+src/ICD_loader/x64/
 gpuMagic.Rproj

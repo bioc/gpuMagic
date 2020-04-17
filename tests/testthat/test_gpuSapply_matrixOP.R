@@ -1,5 +1,5 @@
 context("sapply matrix operation")
-
+skip_if(gpuMagic:::getTotalDeviceNum()==0)
 m=100
 n=200
 

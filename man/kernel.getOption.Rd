@@ -23,7 +23,7 @@ obtained from openCL API and reduced to a divisor of \code{.globalThreadNum}.
 \code{kernelOption$localThreadNumMacro} specifys whether the local thread number
 should be inserted into the code as an macro. If it is TRUE, the macro
 \code{cl_local_thread_num} will be defined. It is useful when you want to dynamically
-allocate the memory (Mostly local memory) according to the local thread number
+allocate the memory \(Mostly local memory\) according to the local thread number
 
 \code{kernelOption$signature} This is for internal usage only, please do not change it
 

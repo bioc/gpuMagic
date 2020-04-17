@@ -1,5 +1,5 @@
 context("A smart man will never fall at the same place twice.")
-
+skip_if(gpuMagic:::getTotalDeviceNum()==0)
 n=100
 m=200
 k=50

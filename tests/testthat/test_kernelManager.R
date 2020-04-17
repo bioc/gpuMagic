@@ -1,4 +1,5 @@
 context("The functionality of the kernel manager")
+skip_if(gpuMagic:::getTotalDeviceNum()==0)
 N_size=1000
 
 test_that("vector add",{

@@ -1,5 +1,5 @@
 context("sapply application")
-
+skip_if(gpuMagic:::getTotalDeviceNum()==0)
 m=100
 n=200
 test_that("largest K value",{

@@ -1,28 +1,50 @@
 .PHONY: clean
 
-CXX_STD=CXX11
-CL_DIR=../inst/include
-CL_INC=$(CL_DIR)/inc
+CXX_STD = CXX11
+OPENCL_INC=../inst/include/OpenCL_header
 
 
-#This script finds the root disk of the windows system and looking for the
-#dll file in the root:/windows/system32/ folder.
-#eg. C:/windows/system32/OpenCL.dll
-#If you do not have this file, it is very possible that you don't have an appropriate graphic driver installed.
-#You can also download this file from the web.
-PKG_LIBS=`${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe "openCL_lib.h"` 
+## The package look for an ICD loader library in
+## "${WINDIR}/system32/OpenCL.dll" folder.
+## eg. C:/windows/system32/OpenCL.dll
+## This is the standard path of the ICD loader specified by Khronos
+## If you do not have this library, it is possible that you don't have an appropriate graphic driver installed.
+## You can also compile the ICD loader library from  https://github.com/KhronosGroup/OpenCL-ICD-Loader
+## If you decide to compile from source and put the library in a non-standard location
+## You can add it into the environment PATH and OPENCL_LIB64 or OPENCL_LIB32 to indicate the new location of the 
+## library
 DLLFLAGS=-Wl,--enable-stdcall-fixup
 
-PKG_CPPFLAGS = -I${R_HOME}/include -I${CL_INC} -DCL_TARGET_OPENCL_VERSION=220 \
+PKG_CPPFLAGS = -I${R_HOME}/include -I${OPENCL_INC} -DCL_TARGET_OPENCL_VERSION=220 \
 	-DCL_USE_DEPRECATED_OPENCL_1_2_APIS
-all: $(SHLIB)
-	
 
-clean:
-	$(RM) *.lib
-	$(RM) *.so
-	$(RM) *.o
-	
-	
+
+ifeq ("$(WIN)","64")
+	ifdef OPENCL_LIB64
+		ICD_LIB:="$(OPENCL_LIB64)/OpenCL.dll"
+	else
+		ICD_LIB:=$(shell ${R_HOME}/bin${R_ARCH_BIN}/Rscript "../inst/utils/openCL_lib.R")
+	endif
+else
+	ifdef OPENCL_LIB32
+		ICD_LIB:="$(OPENCL_LIB32)/OpenCL.dll"
+	else
+		ICD_LIB:=$(shell ${R_HOME}/bin${R_ARCH_BIN}/Rscript "../inst/utils/openCL_lib.R") 
+	endif
+endif	
+
+ifeq (${strip ${ICD_LIB}},NotDefined)
+${info entered}
+ICD_LIB = "./ICD_loader$(R_ARCH)/libOpenCL.a"
+${SHLIB}: ${ICD_LIB}
+${ICD_LIB}:
+	cd ./ICD_loader && mkdir -p .$(R_ARCH) && $(MAKE) .$(R_ARCH)/libOpenCL.a \
+	CC="$(CC)" CFLAGS="$(ALL_CFLAGS)" AR="$(AR)" RM="$(RM)" OPENCL_INC="../$(OPENCL_INC)" \
+	ICD_OS=icd_windows
+endif
+
+PKG_LIBS = ${ICD_LIB}
+
+all: ${SHLIB}
 
 

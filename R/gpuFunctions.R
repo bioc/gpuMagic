@@ -1,42 +1,42 @@
 checkTypeSupport <- function(type) {
-  if (!(type %in% gpuMagic.getAvailableType())) 
-    stop("The variable type ", type, " is not supported")
+    if (!(type %in% gpuMagic.getAvailableType())) 
+        stop("The variable type ", type, " is not supported")
 }
 getTypeNum <- function(type) {
-  switch(type, bool = 1L, char = 1L, half = 2L, float = 3L, double = 4L, 
-         int = 5L, long = 6L, uint = 7L, ulong = 8L, stop("invalid type: ", 
-                                                          type))
+    switch(type, bool = 1L, char = 1L, half = 2L, float = 3L, double = 4L, 
+           int = 5L, long = 6L, uint = 7L, ulong = 8L, stop("invalid type: ", 
+                                                            type))
 }
 
 getFloatingPointType<-function(type){
-  c("half","float","double")
+    c("half","float","double")
 }
 getIntegerType<-function(type){
-  c("bool","char","uint","int","ulong","long")
+    c("bool","char","uint","int","ulong","long")
 }
 getTypeCXXStr <- function(type) {
-  switch(type, bool = "bool", char = "char", half = "half", float = "float", 
-         double = "double", int = "int", long = "long", uint = "uint", ulong = "ulong", 
-         stop("invalid type: ", type))
+    switch(type, bool = "bool", char = "char", half = "half", float = "float", 
+           double = "double", int = "int", long = "long", uint = "uint", ulong = "ulong", 
+           stop("invalid type: ", type))
 }
 
 # in byte
 getTypeSize <- function(type) {
-  switch(type, bool = 1L, char = 1L, half = 2L, float = 4L, double = 8L, 
-         int = 4L, long = 8L, uint = 4L, ulong = 8L, stop("invalid type: ", 
-                                                          type))
+    switch(type, bool = 1L, char = 1L, half = 2L, float = 4L, double = 8L, 
+           int = 4L, long = 8L, uint = 4L, ulong = 8L, stop("invalid type: ", 
+                                                            type))
 }
 getDataType <- function(data) {
-  if (typeof(data) == "double" || typeof(data) == "numeric") 
-    return(GPUVar$default_float)
-  if (typeof(data) == "integer") 
-    return(as.character(gpuMagic.getOptions("default.int")))
-  stop("The given type is not defined")
+    if (typeof(data) == "double" || typeof(data) == "numeric") 
+        return(GPUVar$default_float)
+    if (typeof(data) == "integer") 
+        return(as.character(gpuMagic.getOptions("default.int")))
+    stop("The given type is not defined")
 }
 convertDataType <- function(data, type) {
-  checkTypeSupport(type)
-  switch(type, bool = as.raw(data), char = as.raw(data), int = as.integer(data), 
-         as.double(data))
+    checkTypeSupport(type)
+    switch(type, bool = as.raw(data), char = as.raw(data), int = as.integer(data), 
+           as.double(data))
 }
 #' Print the available options in a pretty format
 #' 
@@ -61,16 +61,16 @@ print.options <- function(x, ...) {
 #' @method print plainText
 #' @export
 print.plainText<-function(x,...){
-  cat(x)
+    cat(x)
 }
 
 #' @rdname printFunctions
 #' @method print deviceList
 #' @export
 print.deviceList<-function(x,...){
-  class(x)="data.frame"
-  print(x, row.names = FALSE, right = FALSE)
-  
+    class(x)="data.frame"
+    print(x, row.names = FALSE, right = FALSE)
+    
 }
 
 # ===========================Obtain device infomation==============
@@ -83,14 +83,18 @@ print.deviceList<-function(x,...){
 #' #Get the available devices
 #' getDeviceList()
 #' 
-#' @return 'getDeviceList()': No return value, the result will be printed in the console
+#' @return 'getDeviceList()': A data.frame that contains all device info
 #' @rdname DeviceInfo
 #' @export
 getDeviceList = function() {
     updateDeviceInfo()
+    if(getTotalDeviceNum()==0){
+        message("No device has been found!")
+        return()
+    }
     deviceInfo = .gpuResourcesManager$globalVars$deviceInfo[, c("id", "platform", 
-        "device", "deviceName", "globalMemory")]
-    deviceInfo$globalMemory = vapply(deviceInfo$globalMemory, format_memory_size_output,character(1))
+                                                                "device", "deviceName", "globalMemory")]
+    deviceInfo$globalMemory = vapply(deviceInfo$globalMemory, format_memory_size,character(1))
     deviceInfo=structure(deviceInfo,class="deviceList")
     deviceInfo
 }
@@ -106,12 +110,16 @@ getDeviceList = function() {
 getDeviceInfo = function(i) {
     updateDeviceInfo()
     deviceInfo = .gpuResourcesManager$globalVars$deviceInfo
+    if(getTotalDeviceNum()==0){
+        message("No device has been found!")
+        return()
+    }
     if (i > nrow(deviceInfo) || i <= 0) {
         stop("Invalid device id!")
     }
     deviceInfo = deviceInfo[i, , drop = FALSE]
-    deviceInfo$globalMemory = format_memory_size_output(deviceInfo$globalMemory)
-    deviceInfo$localMemory = format_memory_size_output(deviceInfo$localMemory)
+    deviceInfo$globalMemory = format_memory_size(deviceInfo$globalMemory)
+    deviceInfo$localMemory = format_memory_size(deviceInfo$localMemory)
     deviceInfo = structure(deviceInfo, class = "options")
     deviceInfo
 }
@@ -124,6 +132,10 @@ getDeviceInfo = function(i) {
 #' @rdname DeviceInfo
 #' @export
 getCurDevice = function() {
+    if(getTotalDeviceNum()==0){
+        message("No device has been found!")
+        return()
+    }
     curInd = as.integer(keys(.gpuResourcesManager$globalVars$curDevice))
     for (i in curInd) {
         print(getDeviceInfo(i))
@@ -133,7 +145,6 @@ getCurDevice = function() {
 }
 #' @details 'setDevice()': Set which device will be used in the opencl, 
 #' call 'getDeviceList()' first to figure out the index before use this function
-#' @inheritParams getDeviceInfo
 #' @examples
 #' #Use the first device
 #' setDevice(1)
@@ -143,6 +154,10 @@ getCurDevice = function() {
 #' @rdname DeviceInfo
 #' @export
 setDevice = function(i) {
+    if(getTotalDeviceNum()==0){
+        message("No device has been found!")
+        return()
+    }
     selectDevice(sort(unique(as.integer(i))))
     invisible()
 }
@@ -154,6 +169,10 @@ setDevice = function(i) {
 #' @rdname DeviceInfo
 #' @export
 getDeviceIndex = function() {
+    if(getTotalDeviceNum()==0){
+        message("No device has been found!")
+        return()
+    }
     as.integer(keys(.gpuResourcesManager$globalVars$curDevice))
 }
 
@@ -161,7 +180,6 @@ getDeviceIndex = function() {
 
 #' @details 'getJobStatus()': Query the current job status in a device
 #' 
-#' @inheritParams getDeviceInfo
 #' @examples 
 #' #Get the job status in the first device
 #' getJobStatus(1)
@@ -169,10 +187,14 @@ getDeviceIndex = function() {
 #' @rdname DeviceInfo
 #' @export
 getJobStatus = function(i) {
+    if(getTotalDeviceNum()==0){
+        message("No device has been found!")
+        return()
+    }
     device = getSelectedDevice(i)
     status = .Call(C_getDeviceStatus, device[1], device[2])
     switch(as.character(status), `3` = "queued", `2` = "submitted", `1` = "running", 
-        `0` = "complete", paste0("Unknown status:", status))
+           `0` = "complete", paste0("Unknown status:", status))
 }
 
 
@@ -185,7 +207,7 @@ gpuMagic.options = new.env()
 gpuMagic.options$default.thread.num = 64
 gpuMagic.options$hoist.optimization=FALSE
 gpuMagic.options$supportedType <- c("bool", "char", "half", "float", "double", 
-    "int", "long", "uint", "ulong")
+                                    "int", "long", "uint", "ulong")
 
 
 
@@ -211,19 +233,19 @@ gpuMagic.options$supportedType <- c("bool", "char", "half", "float", "double",
 #' @return A list of the options
 #' @export
 gpuMagic.getOptions = function(opt = "all") {
-  allOpt = data.frame(
-    default.float = GPUVar$default_float, 
-    default.int = GPUVar$default_int, 
-    default.index.type = GPUVar$default_index_type, 
-    default.thread.num = gpuMagic.options$default.thread.num,
-    hoist.optimization=gpuMagic.options$hoist.optimization,
-    stringsAsFactors = FALSE)
-  if (opt == "all") 
-    curOpt = allOpt 
-  else 
-    curOpt = allOpt[, opt, drop = FALSE]
-  curOpt = structure(curOpt, class = "options")
-  curOpt
+    allOpt = data.frame(
+        default.float = GPUVar$default_float, 
+        default.int = GPUVar$default_int, 
+        default.index.type = GPUVar$default_index_type, 
+        default.thread.num = gpuMagic.options$default.thread.num,
+        hoist.optimization=gpuMagic.options$hoist.optimization,
+        stringsAsFactors = FALSE)
+    if (opt == "all") 
+        curOpt = allOpt 
+    else 
+        curOpt = allOpt[, opt, drop = FALSE]
+    curOpt = structure(curOpt, class = "options")
+    curOpt
 }
 
 
@@ -264,25 +286,25 @@ gpuMagic.setOptions = function(...) {
         value = parms[[i]]
         switch(i, 
                default.float = {
-                 checkTypeSupport(value)
-                 GPUVar$default_float = value
+                   checkTypeSupport(value)
+                   GPUVar$default_float = value
                }, 
                default.int = {
-                 checkTypeSupport(value)
-                 GPUVar$default_int = value
+                   checkTypeSupport(value)
+                   GPUVar$default_int = value
                }, 
                default.index.type = {
-                 checkTypeSupport(value)
-                 GPUVar$default_index_type = value
+                   checkTypeSupport(value)
+                   GPUVar$default_index_type = value
                }
         )
         if(i %in% names(gpuMagic.options)){
-          curValue=gpuMagic.options[[i]]
-          if(xor(is.numeric(value),is.numeric(curValue))||
-             typeof(value)!=typeof(curValue)){
-            stop("Invalid option value: ",i)
-          }
-          gpuMagic.options[[i]]=value
+            curValue=gpuMagic.options[[i]]
+            if(xor(is.numeric(value),is.numeric(curValue))||
+               typeof(value)!=typeof(curValue)){
+                stop("Invalid option value: ",i)
+            }
+            gpuMagic.options[[i]]=value
         }
         
     }

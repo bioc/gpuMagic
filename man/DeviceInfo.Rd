@@ -25,7 +25,7 @@ getJobStatus(i)
 \item{i}{A 1-based device index, it should be an integer}
 }
 \value{
-'getDeviceList()': No return value, the result will be printed in the console
+'getDeviceList()': A data.frame that contains all device info
 
 'getDeviceInfo()': A list with the device information
 

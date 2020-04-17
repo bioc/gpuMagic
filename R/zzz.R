@@ -14,10 +14,10 @@
 
 .onUnload <- function(libpath) {
     .gpuResourcesManager$deleteEnv()
-    library.dynam.unload("gpuMagic", libpath)
 }
 .onLoad <- function(libname, pkgname) {
-    if(getPlatformNum()!=0){
+  updateDeviceInfo()
+    if(getTotalDeviceNum()!=0){
       setDevice(1)
     }
 }

@@ -1,5 +1,5 @@
 context("sapply statistics function")
-
+skip_if(gpuMagic:::getTotalDeviceNum()==0)
 n=100
 m=200
 
