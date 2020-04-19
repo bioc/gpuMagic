@@ -7,6 +7,7 @@
 \alias{upload,gpuMatrix-method}
 \alias{download}
 \alias{download,gpuMatrix-method}
+\alias{download,ANY-method}
 \alias{nrow}
 \alias{nrow,gpuMatrix-method}
 \alias{dim,gpuMatrix-method}
@@ -26,6 +27,8 @@ upload(x)
 download(x)
 
 \S4method{download}{gpuMatrix}(x)
+
+\S4method{download}{ANY}(x)
 
 nrow(x)
 

@@ -167,7 +167,7 @@ setMethod(f = "download", signature = "gpuMatrix", definition = function(x) {
     .Call(C_asMatrix, x@data, as.integer(.dim(x)))
     x
 })
-
+#' @rdname gpuMatrix
 #' @export
 setMethod(f = "download", signature = "ANY", definition = function(x) {
     NA
