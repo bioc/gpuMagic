@@ -1,7 +1,7 @@
 Package: gpuMagic
 Type: Package
 Title: An openCL compiler with the capacity to compile R functions and run the code on GPU
-Version: 1.25.0
+Version: 1.25.1
 Date: 2018-10-07
 Authors@R: c(
     person(
@@ -76,3 +76,4 @@ Collate:
     'zzz.R'
 VignetteBuilder: knitr
 Encoding: UTF-8
+PackageStatus: Deprecated
